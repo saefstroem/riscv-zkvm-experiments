@@ -1,0 +1,16 @@
+[package]
+name = "riscv-guest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+risc0-zkvm = { version = "1.1.2", default-features = false, features=["std"] }
+
+[profile.release]
+debug = false
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
+
+[workspace]

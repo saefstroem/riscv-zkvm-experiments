@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::Read;
-use risc0_zkvm::{default_prover, ExecutorEnv, Receipt};
+use risc0_zkvm::{compute_image_id, default_prover, ExecutorEnv, Receipt};
 use sha2::{Sha256, Digest};
 
 fn load_elf(path: &str) -> Vec<u8> {
@@ -10,22 +10,6 @@ fn load_elf(path: &str) -> Vec<u8> {
     elf_data
 }
 
-fn compute_image_id(elf_data: &[u8]) -> [u32; 8] {
-    // Compute SHA-256 hash of the ELF data
-    let mut hasher = Sha256::new();
-    hasher.update(elf_data);
-    let result = hasher.finalize();
-    
-    // Convert the hash to [u32; 8] format expected by RISC-0
-    let mut image_id = [0u32; 8];
-    for i in 0..8 {
-        let start = i * 4;
-        let end = start + 4;
-        let bytes = &result[start..end];
-        image_id[i] = u32::from_le_bytes(bytes.try_into().unwrap());
-    }
-    image_id
-}
 
 fn prove_custom_elf(
     elf_path: &str, 
@@ -35,14 +19,13 @@ fn prove_custom_elf(
     let elf_data = load_elf(elf_path);
     
     // Compute the image ID
-    let image_id = compute_image_id(&elf_data);
-    
-    // Create the executor environment
+    let image_id =compute_image_id(&elf_data).unwrap();
+
     // Create the executor environment
     let env = ExecutorEnv::builder()
         .write_slice(&[10u32]) // Input for fibonacci
         .build()?;
-        
+    
     // Get the default prover
     let prover = default_prover();
     

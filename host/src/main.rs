@@ -23,9 +23,8 @@ fn prove_custom_elf(
 
     // Create the executor environment
     let env = ExecutorEnv::builder()
-        .write_slice(&[10u32]) // Input for fibonacci
         .build()?;
-    
+
     // Get the default prover
     let prover = default_prover();
     
